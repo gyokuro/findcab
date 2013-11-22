@@ -4,6 +4,12 @@ import (
 	"flag"
 	"github.com/gyokuro/findcab"
 	"io"
+	"strconv"
+)
+
+// Flags from the command line
+var (
+	httpPort = flag.Int("p", 8080, "http server port")
 )
 
 func main() {
@@ -16,12 +22,10 @@ func main() {
 	shutdownc := make(chan io.Closer, 1)
 	go findcab.HandleSignals(shutdownc)
 
-	server := &findcab.Server{
-		Port: 8080,
-	}
-
 	go func() {
-		err := server.Http().ListenAndServe()
+		httpServer := findcab.HttpServer(nil)
+		httpServer.Addr = ":" + strconv.Itoa(*httpPort)
+		err := httpServer.ListenAndServe()
 		if err != nil {
 			panic(err)
 		}
