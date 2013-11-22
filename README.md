@@ -1,6 +1,3 @@
-findcab
-=======
-
 # Overview
 
 Should you choose to accept it, your challenge is to build an HTTP server that can quickly find
@@ -12,11 +9,13 @@ framework of your choice. Your server must be able to handle the following CRUD 
 Insert a new record or update the latitude and longitude of a particular cab
 
 HTTP Method | URL | Returns | Normal Response
+:----------:|:---:|:-------:|:--------------:
 PUT | /cabs/(cab_id) | No body | 200 OK
 
 ## Parameters
 
 Required | Name | Type | Default | Description | Example
+:-------:|:----:|:----:|:-------:|:-----------:|:------:
 Yes | latitude | Float | | GPS |
 Yes | longitude | Float | | GPS |
 
@@ -25,6 +24,7 @@ Yes | longitude | Float | | GPS |
 Get the full details of the cab
 
 HTTP Method | URL | Returns | Normal Response
+:----------:|:---:|:-------:|:--------------:
 GET | /cabs/(cab_id) | Cab | 200 OK
 
 ## Parameters
@@ -37,11 +37,13 @@ Search for nearest cabs. The returned data does not have to be sorted and should
 cab records. DIstance should be calculated based on the Haversine formula.
 
 HTTP Method | URL | Returns | Normal Response
+:----------:|:---:|:-------:|:--------------:
 GET | /cabs | Cab | 200 OK
 
 ## Query Parameters
 
 Required | Name | Type | Default | Description | Example
+:-------:|:----:|:----:|:-------:|:-----------:|:------:
 Yes | latitude | Float | |  Client GPS |
 Yes | longitude | Float | | Client GPS |
 | limit | Integer | 8 | The total |
@@ -77,6 +79,7 @@ Yes | longitude | Float | | Client GPS |
 Destroy a cab
 
 HTTP Method | URL | Returns | Normal Response
+:----------:|:---:|:-------:|:--------------:
 DELETE | /cabs/(cab_id) | No body | 200 OK
 
 ## Parameters
@@ -88,6 +91,7 @@ This action does not have any parameters.
 Destroy all cab records
 
 HTTP Method | URL | Returns | Normal Response
+:----------:|:---:|:-------:|:--------------:
 DELETE | /cabs | No body | 200 OK
 
 ## Parameters
