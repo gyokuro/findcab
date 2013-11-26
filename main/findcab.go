@@ -3,7 +3,9 @@ package main
 import (
 	"flag"
 	"github.com/gyokuro/findcab"
+	"github.com/gyokuro/findcab/impl"
 	"io"
+	"log"
 	"strconv"
 )
 
@@ -16,20 +18,21 @@ func main() {
 
 	flag.Parse()
 
-	// Signal for shutdown
-	done := make(chan bool)
-
 	shutdownc := make(chan io.Closer, 1)
 	go findcab.HandleSignals(shutdownc)
 
-	go func() {
-		httpServer := findcab.HttpServer(nil)
-		httpServer.Addr = ":" + strconv.Itoa(*httpPort)
-		err := httpServer.ListenAndServe()
-		if err != nil {
-			panic(err)
-		}
-	}()
+	service := impl.DummyCabService{}
+
+	httpServer := findcab.HttpServer(&service)
+	httpServer.Addr = ":" + strconv.Itoa(*httpPort)
+
+	// Run the http server in a separate go routine
+	// When stopping, send a true to the httpDone channel.
+	// The channel done is used for getting notification on clean server shutdown.
+	httpDone := make(chan bool)
+	done := findcab.RunServer(httpServer, httpDone)
+
+	log.Println("Server listening on ", httpServer.Addr)
 
 	// Here is a list of shutdown hooks to execute when receiving the OS signal
 	shutdownc <- findcab.ShutdownSequence{
@@ -38,10 +41,11 @@ func main() {
 			return nil
 		}),
 		findcab.ShutdownHook(func() error {
-			done <- true
+			httpDone <- true
 			return nil
 		}),
 	}
 
 	<-done // This just blocks until a bool is sent on the channel
+	log.Println("Bye")
 }

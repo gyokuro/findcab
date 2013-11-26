@@ -1,41 +1,88 @@
 package findcab
 
 import (
-	_ "encoding/json"
+	"encoding/json"
 	"github.com/gorilla/mux"
-	_ "io/ioutil"
+	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"strconv"
 )
 
-type Location struct {
-	Latitude  float64
-	Longitude float64
+// Returns a channel that can be blocked on to get notification of the server's having stopped.
+func RunServer(server *http.Server, stop chan bool) (stopped chan bool) {
+	listener, err := net.Listen("tcp", server.Addr)
+	if err != nil {
+		panic(err)
+	}
+	stopped = make(chan bool)
+	go func() {
+		err := server.Serve(listener)
+		log.Println("Stopped http server", err)
+		stopped <- true
+	}()
+
+	go func() {
+		select {
+		case <-stop:
+			listener.Close()
+			return
+		}
+	}()
+	return
 }
 
-type Cab struct {
-	Id        string
-	Latitude  float64
-	Longitude float64
-}
-
-type CabService interface {
-	Read(id string) (Cab, error)
-	Upsert(cab Cab) error
-	Delete(id string) error
-	Within(center Location, radius float64, limit uint64) ([]Cab, error)
-	ReadAll() ([]Cab, error)
-	DeleteAll() error
-}
-
+// Returns a http server from given service object
 func HttpServer(service CabService) *http.Server {
 
 	router := mux.NewRouter()
-	router.Methods("GET").Path("/cabs/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cabs, err := service.ReadAll()
-		log.Println("found cabs", cabs, err)
+
+	// Create / Update Request
+	router.Methods("PUT").Path("/cabs/{cabId}").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		params := mux.Vars(r)
+		cabId := params["cabId"]
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		}
+
+		cab := Cab{}
+		err = json.Unmarshal(body, &cab)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		}
+		err = service.Upsert(cabId, cab)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	})
+
+	// Get Request
+	router.Methods("GET").Path("/cabs/{cabId}").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		params := mux.Vars(r)
+		cabId := params["cabId"]
+		cab, err := service.Read(cabId)
+		switch err {
+		case nil:
+			if jsonStr, err2 := json.Marshal(cab); err2 != nil {
+				http.Error(w, err2.Error(), http.StatusInternalServerError)
+				return
+			} else {
+				w.Write(jsonStr)
+				return
+			}
+
+		case ErrorNotFound:
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		default:
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	})
+
+	// Query
 	router.Methods("GET").Path("/cabs").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -66,35 +113,41 @@ func HttpServer(service CabService) *http.Server {
 			Longitude: longitude,
 			Latitude:  latitude,
 		}, radius, limit)
-		log.Println("found cabs", cabs, err)
+		switch err {
+		case nil:
+			if jsonStr, err2 := json.Marshal(cabs); err2 != nil {
+				http.Error(w, err2.Error(), http.StatusInternalServerError)
+				return
+			} else {
+				w.Write(jsonStr)
+				return
+			}
+
+		case ErrorNotFound:
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		default:
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	})
 
-	router.Methods("GET").Path("/cabs/{cabId}").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		params := mux.Vars(r)
-		cabId := params["cabId"]
-		log.Println("GET", cabId)
-		cab, err := service.Read(cabId)
-		log.Println("Found", cab, err)
-	})
-
-	router.Methods("PUT").Path("/cabs/{cabId}").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		params := mux.Vars(r)
-		cabId := params["cabId"]
-		log.Println("PUT", cabId)
-		// TODO - parse bod
-	})
-
+	// Destroy Request
 	router.Methods("DELETE").Path("/cabs/{cabId}").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
 		cabId := params["cabId"]
-		log.Println("DELETE", cabId)
-		// TODO - parse bod
+		err := service.Delete(cabId)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	})
 
+	// Destroy All Request
 	router.Methods("DELETE").Path("/cabs").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("DELETE ALL")
 		err := service.DeleteAll()
-		log.Println("DELETED", err)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	})
 
 	return &http.Server{
