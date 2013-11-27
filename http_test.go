@@ -3,7 +3,9 @@ package findcab
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
+	_ "log"
 	"net/http"
 	"strconv"
 	"testing"
@@ -88,11 +90,15 @@ func TestHttpCreateUpdate(test *testing.T) {
 	check(err)
 	req.Header.Add("Content-Type", "application/json")
 
-	_, err = client.Do(req)
+	resp, err := client.Do(req)
 	check(err)
 
 	stop <- true
 	<-stopped
+
+	if resp.StatusCode != 200 {
+		test.Error("Expect 200", resp)
+	}
 
 	expected := testService{
 		calledUpsert: true,
@@ -113,17 +119,15 @@ func TestHttpGet(test *testing.T) {
 	resp, err := client.Do(req)
 	check(err)
 
+	stop <- true
+	<-stopped
+
 	body, err := ioutil.ReadAll(resp.Body)
 	check(err)
 
 	cab := Cab{}
 	err = json.Unmarshal(body, &cab)
 	check(err)
-
-	test.Log("Response:", body, cab)
-
-	stop <- true
-	<-stopped
 
 	expected := testService{
 		calledRead: true,
@@ -136,13 +140,96 @@ func TestHttpGet(test *testing.T) {
 }
 
 func TestHttpQuery(test *testing.T) {
+	port := 8183
+	service, stop, stopped := runServer(port)
 
+	lat := 5.5
+	lng := 15.15
+	radius := 1000.0
+	limit := uint64(8)
+
+	url := fmt.Sprintf("http://localhost:%d/cabs?latitude=%f&longitude=%f&radius=%f&limit=%d",
+		port, lat, lng, radius, limit)
+	req, err := http.NewRequest("GET", url, nil)
+	check(err)
+
+	resp, err := client.Do(req)
+	check(err)
+
+	stop <- true
+	<-stopped
+
+	if resp.StatusCode != 200 {
+		test.Error("Expect 200", resp)
+	}
+
+	expected := testService{
+		calledWithin: true,
+		center: Location{
+			Latitude:  lat,
+			Longitude: lng,
+		},
+		radius: radius,
+		limit:  limit,
+	}
+
+	if *service != expected {
+		test.Error("Query failed", expected, *service)
+	}
 }
 
 func TestHttpDestroy(test *testing.T) {
+	port := 8184
+	service, stop, stopped := runServer(port)
 
+	id := "12345"
+	url := fmt.Sprintf("http://localhost:%d/cabs/%s", port, id)
+	req, err := http.NewRequest("DELETE", url, nil)
+	check(err)
+
+	resp, err := client.Do(req)
+	check(err)
+
+	stop <- true
+	<-stopped
+
+	if resp.StatusCode != 200 {
+		test.Error("Expect 200", resp)
+	}
+
+	expected := testService{
+		calledDelete: true,
+		id:           id,
+	}
+
+	if *service != expected {
+		test.Error("Delete failed", expected, *service)
+	}
 }
 
 func TestHttpDestroyAll(test *testing.T) {
+	port := 8185
+	service, stop, stopped := runServer(port)
 
+	url := fmt.Sprintf("http://localhost:%d/cabs", port)
+	req, err := http.NewRequest("DELETE", url, nil)
+	check(err)
+
+	resp, err := client.Do(req)
+	check(err)
+
+	stop <- true
+	<-stopped
+
+	if resp.StatusCode != 200 {
+		test.Error("Expect 200", resp)
+	}
+
+	expected := testService{
+		calledDeleteAll: true,
+	}
+
+	if *service != expected {
+		test.Error("DeleteAll failed", expected, *service)
+	}
 }

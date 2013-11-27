@@ -17,12 +17,16 @@ func RunServer(server *http.Server, stop chan bool) (stopped chan bool) {
 		panic(err)
 	}
 	stopped = make(chan bool)
+
+	// The main goroutine where the server listens on the network connection
 	go func() {
 		err := server.Serve(listener)
 		log.Println("Stopped http server", err)
 		stopped <- true
 	}()
 
+	// Another goroutine that listens for signal to close the network connection
+	// on shutdown.  This will cause the server.Serve() to return.
 	go func() {
 		select {
 		case <-stop:
@@ -34,6 +38,8 @@ func RunServer(server *http.Server, stop chan bool) (stopped chan bool) {
 }
 
 // Returns a http server from given service object
+// Registration of URL routes to handler functions that will invoke the service's methods to do CRUD.
+// Basic marshal/unmarshal of JSON objects for the REST calls also take place here.
 func HttpServer(service CabService) *http.Server {
 
 	router := mux.NewRouter()
@@ -85,21 +91,25 @@ func HttpServer(service CabService) *http.Server {
 	// Query
 	router.Methods("GET").Path("/cabs").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err != nil {
+			log.Println("form", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		longitude, err := strconv.ParseFloat(r.FormValue("longitude"), 64)
 		if err != nil {
+			log.Println("lng", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		latitude, err := strconv.ParseFloat(r.FormValue("latitude"), 64)
 		if err != nil {
+			log.Println("lat", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		radius, err := strconv.ParseFloat(r.FormValue("radius"), 64)
 		if err != nil {
+			log.Println("rad", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
