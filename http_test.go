@@ -25,11 +25,17 @@ type testService struct {
 
 	// which method is called?
 	calledRead, calledUpsert, calledWithin, calledDelete, calledDeleteAll bool
+
+	// for testing Get/Query requests
+	mockGetResponse *Cab
 }
 
 func (ts *testService) Read(id string) (cab Cab, err error) {
 	ts.calledRead = true
 	ts.id = id
+	if ts.mockGetResponse != nil {
+		cab = *ts.mockGetResponse
+	}
 	return
 }
 
@@ -51,6 +57,9 @@ func (ts *testService) Within(center Location, radius float64, limit uint64) (ca
 	ts.center = center
 	ts.radius = radius
 	ts.limit = limit
+	if ts.mockGetResponse != nil {
+		cabs = []Cab{*ts.mockGetResponse}
+	}
 	return
 }
 
@@ -114,6 +123,12 @@ func TestHttpCreateUpdate(test *testing.T) {
 func TestHttpGet(test *testing.T) {
 	service, stop, stopped := runServer(8182)
 
+	service.mockGetResponse = &Cab{
+		Id:        "1234",
+		Latitude:  -40.0,
+		Longitude: -25.0,
+	}
+
 	req, err := http.NewRequest("GET", "http://localhost:8182/cabs/1234", nil)
 	check(err)
 	resp, err := client.Do(req)
@@ -122,26 +137,41 @@ func TestHttpGet(test *testing.T) {
 	stop <- true
 	<-stopped
 
+	// Check input parameters/ request body to the service
+	expected := testService{
+		calledRead:      true,
+		id:              "1234",
+		mockGetResponse: service.mockGetResponse,
+	}
+	if *service != expected {
+		test.Error("Read failed", expected, *service)
+	}
+
+	// Check response status
+	if resp.StatusCode != 200 {
+		test.Error("Expect 200", resp)
+	}
+
+	// Parse the response body
 	body, err := ioutil.ReadAll(resp.Body)
 	check(err)
-
 	cab := Cab{}
 	err = json.Unmarshal(body, &cab)
 	check(err)
-
-	expected := testService{
-		calledRead: true,
-		id:         "1234",
-	}
-
-	if *service != expected {
-		test.Error("Read failed", expected, *service)
+	if cab != *service.mockGetResponse {
+		test.Error("Expect response", service.mockGetResponse, cab)
 	}
 }
 
 func TestHttpQuery(test *testing.T) {
 	port := 8183
 	service, stop, stopped := runServer(port)
+
+	service.mockGetResponse = &Cab{
+		Id:        "1234",
+		Latitude:  -40.0,
+		Longitude: -25.0,
+	}
 
 	lat := 5.5
 	lng := 15.15
@@ -159,22 +189,34 @@ func TestHttpQuery(test *testing.T) {
 	stop <- true
 	<-stopped
 
-	if resp.StatusCode != 200 {
-		test.Error("Expect 200", resp)
-	}
-
+	// Check in the input params
 	expected := testService{
 		calledWithin: true,
 		center: Location{
 			Latitude:  lat,
 			Longitude: lng,
 		},
-		radius: radius,
-		limit:  limit,
+		radius:          radius,
+		limit:           limit,
+		mockGetResponse: service.mockGetResponse,
 	}
-
 	if *service != expected {
 		test.Error("Query failed", expected, *service)
+	}
+
+	// Check response status
+	if resp.StatusCode != 200 {
+		test.Error("Expect 200", resp)
+	}
+
+	// Parse the response body
+	body, err := ioutil.ReadAll(resp.Body)
+	check(err)
+	cabs := []Cab{}
+	err = json.Unmarshal(body, &cabs)
+	check(err)
+	if len(cabs) != 1 && cabs[0] != *service.mockGetResponse {
+		test.Error("Expect response", service.mockGetResponse, cabs, string(body))
 	}
 }
 
@@ -193,17 +235,17 @@ func TestHttpDestroy(test *testing.T) {
 	stop <- true
 	<-stopped
 
-	if resp.StatusCode != 200 {
-		test.Error("Expect 200", resp)
-	}
-
 	expected := testService{
 		calledDelete: true,
 		id:           id,
 	}
-
 	if *service != expected {
 		test.Error("Delete failed", expected, *service)
+	}
+
+	// Check response
+	if resp.StatusCode != 200 {
+		test.Error("Expect 200", resp)
 	}
 }
 
@@ -221,15 +263,16 @@ func TestHttpDestroyAll(test *testing.T) {
 	stop <- true
 	<-stopped
 
-	if resp.StatusCode != 200 {
-		test.Error("Expect 200", resp)
-	}
-
+	// Checking input to service
 	expected := testService{
 		calledDeleteAll: true,
 	}
-
 	if *service != expected {
 		test.Error("DeleteAll failed", expected, *service)
+	}
+
+	// Checking response
+	if resp.StatusCode != 200 {
+		test.Error("Expect 200", resp)
 	}
 }
