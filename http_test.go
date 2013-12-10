@@ -26,8 +26,14 @@ type testService struct {
 	// which method is called?
 	calledRead, calledUpsert, calledWithin, calledDelete, calledDeleteAll bool
 
-	// for testing Get/Query requests
-	mockGetResponse *Cab
+	// mock responses
+	mockGetResponse   *Cab
+	mockQueryResponse *[]Cab
+}
+
+func (ts *testService) clear() {
+	ts.mockGetResponse = nil
+	ts.mockQueryResponse = nil
 }
 
 func (ts *testService) Read(id string) (cab Cab, err error) {
@@ -35,6 +41,7 @@ func (ts *testService) Read(id string) (cab Cab, err error) {
 	ts.id = id
 	if ts.mockGetResponse != nil {
 		cab = *ts.mockGetResponse
+		ts.clear()
 	}
 	return
 }
@@ -57,8 +64,9 @@ func (ts *testService) Within(center Location, radius float64, limit uint64) (ca
 	ts.center = center
 	ts.radius = radius
 	ts.limit = limit
-	if ts.mockGetResponse != nil {
-		cabs = []Cab{*ts.mockGetResponse}
+	if ts.mockQueryResponse != nil {
+		cabs = *ts.mockQueryResponse //[]Cab{*ts.mockQueryResponse}
+		ts.clear()
 	}
 	return
 }
@@ -72,6 +80,18 @@ func check(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func checkSlices(a, b []Cab) (bool, int) {
+	if len(a) != len(b) {
+		return false, -1
+	}
+	for i := 0; i < len(a); i++ {
+		if a[i] != b[i] {
+			return false, i
+		}
+	}
+	return true, -1
 }
 
 func runServer(port int) (service *testService, stop chan bool, stopped chan bool) {
@@ -123,11 +143,13 @@ func TestHttpCreateUpdate(test *testing.T) {
 func TestHttpGet(test *testing.T) {
 	service, stop, stopped := runServer(8182)
 
-	service.mockGetResponse = &Cab{
+	mockResult := Cab{
 		Id:        "1234",
 		Latitude:  -40.0,
 		Longitude: -25.0,
 	}
+
+	service.mockGetResponse = &mockResult
 
 	req, err := http.NewRequest("GET", "http://localhost:8182/cabs/1234", nil)
 	check(err)
@@ -139,9 +161,8 @@ func TestHttpGet(test *testing.T) {
 
 	// Check input parameters/ request body to the service
 	expected := testService{
-		calledRead:      true,
-		id:              "1234",
-		mockGetResponse: service.mockGetResponse,
+		calledRead: true,
+		id:         "1234",
 	}
 	if *service != expected {
 		test.Error("Read failed", expected, *service)
@@ -158,8 +179,8 @@ func TestHttpGet(test *testing.T) {
 	cab := Cab{}
 	err = json.Unmarshal(body, &cab)
 	check(err)
-	if cab != *service.mockGetResponse {
-		test.Error("Expect response", service.mockGetResponse, cab)
+	if cab != mockResult {
+		test.Error("Expect response", mockResult, cab)
 	}
 }
 
@@ -167,11 +188,20 @@ func TestHttpQuery(test *testing.T) {
 	port := 8183
 	service, stop, stopped := runServer(port)
 
-	service.mockGetResponse = &Cab{
-		Id:        "1234",
-		Latitude:  -40.0,
-		Longitude: -25.0,
+	mockResult := []Cab{
+		Cab{
+			Id:        "1234",
+			Latitude:  -40.0,
+			Longitude: -25.0,
+		},
+		Cab{
+			Id:        "2234",
+			Latitude:  -41.0,
+			Longitude: -26.0,
+		},
 	}
+
+	service.mockQueryResponse = &mockResult
 
 	lat := 5.5
 	lng := 15.15
@@ -196,9 +226,8 @@ func TestHttpQuery(test *testing.T) {
 			Latitude:  lat,
 			Longitude: lng,
 		},
-		radius:          radius,
-		limit:           limit,
-		mockGetResponse: service.mockGetResponse,
+		radius: radius,
+		limit:  limit,
 	}
 	if *service != expected {
 		test.Error("Query failed", expected, *service)
@@ -215,8 +244,8 @@ func TestHttpQuery(test *testing.T) {
 	cabs := []Cab{}
 	err = json.Unmarshal(body, &cabs)
 	check(err)
-	if len(cabs) != 1 && cabs[0] != *service.mockGetResponse {
-		test.Error("Expect response", service.mockGetResponse, cabs, string(body))
+	if equal, index := checkSlices(mockResult, cabs); !equal {
+		test.Error("Expect response", index, mockResult, cabs, string(body))
 	}
 }
 

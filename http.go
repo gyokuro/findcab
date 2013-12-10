@@ -133,9 +133,6 @@ func HttpServer(service CabService) *http.Server {
 				return
 			}
 
-		case ErrorNotFound:
-			http.Error(w, err.Error(), http.StatusNotFound)
-			return
 		default:
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
