@@ -17,11 +17,9 @@ var client = &http.Client{}
 // wrapper
 type testService struct {
 	// record the parameters passed to the api calls
-	id     string
-	center Location
-	radius float64
-	limit  uint64
-	cab    Cab
+	id          string
+	withinQuery WithinQuery
+	cab         Cab
 
 	// which method is called?
 	calledRead, calledUpsert, calledWithin, calledDelete, calledDeleteAll bool
@@ -59,11 +57,9 @@ func (ts *testService) Delete(id string) (err error) {
 	return
 }
 
-func (ts *testService) Within(center Location, radius float64, limit uint64) (cabs []Cab, err error) {
+func (ts *testService) Query(q WithinQuery) (cabs []Cab, err error) {
 	ts.calledWithin = true
-	ts.center = center
-	ts.radius = radius
-	ts.limit = limit
+	ts.withinQuery = q
 	if ts.mockQueryResponse != nil {
 		cabs = *ts.mockQueryResponse //[]Cab{*ts.mockQueryResponse}
 		ts.clear()
@@ -222,13 +218,15 @@ func TestHttpQuery(test *testing.T) {
 	// Check in the input params
 	expected := testService{
 		calledWithin: true,
-		center: Location{
-			Latitude:  lat,
-			Longitude: lng,
-		},
-		radius: radius,
-		limit:  limit,
-	}
+		withinQuery: WithinQuery{
+			Center: Location{
+				Latitude:  lat,
+				Longitude: lng,
+			},
+			Radius: radius,
+			Unit:   Meters,
+			Limit:  limit,
+		}}
 	if *service != expected {
 		test.Error("Query failed", expected, *service)
 	}

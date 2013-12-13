@@ -119,10 +119,14 @@ func HttpServer(service CabService) *http.Server {
 			limit, _ = strconv.ParseUint(r.FormValue("limit"), 10, 64)
 		}
 
-		cabs, err := service.Within(Location{
-			Longitude: longitude,
-			Latitude:  latitude,
-		}, radius, limit)
+		cabs, err := service.Query(WithinQuery{
+			Center: Location{
+				Longitude: longitude,
+				Latitude:  latitude,
+			},
+			Radius: radius,
+			Unit:   Meters,
+			Limit:  limit})
 		switch err {
 		case nil:
 			if jsonStr, err2 := json.Marshal(cabs); err2 != nil {

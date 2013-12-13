@@ -15,11 +15,25 @@ type Cab struct {
 	Longitude float64
 }
 
+type DistanceUnit float64
+
+const (
+	Meters DistanceUnit = iota
+	Feet
+)
+
+type WithinQuery struct {
+	Center Location
+	Radius float64
+	Unit   DistanceUnit
+	Limit  uint64
+}
+
 type CabService interface {
 	Read(id string) (Cab, error)
 	Upsert(id string, cab Cab) error
 	Delete(id string) error
-	Within(center Location, radius float64, limit uint64) ([]Cab, error)
+	Query(query WithinQuery) ([]Cab, error)
 	DeleteAll() error
 }
 
