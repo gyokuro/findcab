@@ -119,7 +119,7 @@ func HttpServer(service CabService) *http.Server {
 			limit, _ = strconv.ParseUint(r.FormValue("limit"), 10, 64)
 		}
 
-		cabs, err := service.Query(WithinQuery{
+		cabs, err := service.Query(GeoWithin{
 			Center: Location{
 				Longitude: longitude,
 				Latitude:  latitude,

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	_ "log"
 	"net/http"
 	"strconv"
 	"testing"
@@ -18,7 +17,7 @@ var client = &http.Client{}
 type testService struct {
 	// record the parameters passed to the api calls
 	id          string
-	withinQuery WithinQuery
+	withinQuery GeoWithin
 	cab         Cab
 
 	// which method is called?
@@ -57,7 +56,7 @@ func (ts *testService) Delete(id string) (err error) {
 	return
 }
 
-func (ts *testService) Query(q WithinQuery) (cabs []Cab, err error) {
+func (ts *testService) Query(q GeoWithin) (cabs []Cab, err error) {
 	ts.calledWithin = true
 	ts.withinQuery = q
 	if ts.mockQueryResponse != nil {
@@ -82,9 +81,9 @@ func checkSlices(a, b []Cab) (bool, int) {
 	if len(a) != len(b) {
 		return false, -1
 	}
-	for i := 0; i < len(a); i++ {
-		if a[i] != b[i] {
-			return false, i
+	for index, value := range a {
+		if value != b[index] {
+			return false, index
 		}
 	}
 	return true, -1
@@ -218,7 +217,7 @@ func TestHttpQuery(test *testing.T) {
 	// Check in the input params
 	expected := testService{
 		calledWithin: true,
-		withinQuery: WithinQuery{
+		withinQuery: GeoWithin{
 			Center: Location{
 				Latitude:  lat,
 				Longitude: lng,

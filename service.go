@@ -18,11 +18,13 @@ type Cab struct {
 type DistanceUnit float64
 
 const (
-	Meters DistanceUnit = iota
+	Kilometers DistanceUnit = iota
+	Meters
+	Miles
 	Feet
 )
 
-type WithinQuery struct {
+type GeoWithin struct {
 	Center Location
 	Radius float64
 	Unit   DistanceUnit
@@ -33,7 +35,7 @@ type CabService interface {
 	Read(id string) (Cab, error)
 	Upsert(id string, cab Cab) error
 	Delete(id string) error
-	Query(query WithinQuery) ([]Cab, error)
+	Query(query GeoWithin) ([]Cab, error)
 	DeleteAll() error
 }
 

@@ -7,42 +7,55 @@ import (
 
 // Dummy implementation of the CabService interface
 
-type DummyCabService struct {
+func DummyCabService() *dummyCabService {
+	return &dummyCabService{
+		cabs: make(map[string]findcab.Cab),
+	}
 }
 
-var dummyCab = findcab.Cab{
-	Id:        "0",
-	Latitude:  1.0,
-	Longitude: 1.0,
+type dummyCabService struct {
+	cabs map[string]findcab.Cab
 }
 
-func (cs *DummyCabService) Read(id string) (cab findcab.Cab, err error) {
+func (s *dummyCabService) Read(id string) (result findcab.Cab, err error) {
 	log.Println("id", id)
-	if id == dummyCab.Id {
-		cab = dummyCab
-	} else {
-		err = findcab.ErrorNotFound
+	var exists bool
+	if result, exists = s.cabs[id]; exists {
+		return
+	}
+	err = findcab.ErrorNotFound
+	return
+}
+
+func (s *dummyCabService) Upsert(id string, cab findcab.Cab) (err error) {
+	log.Println("Upsert", id, cab)
+	s.cabs[id] = cab
+	return nil
+}
+
+func (s *dummyCabService) Delete(id string) (err error) {
+	log.Println("Delete", id)
+	delete(s.cabs, id)
+	return nil
+}
+
+func (s *dummyCabService) Query(q findcab.GeoWithin) (cabs []findcab.Cab, err error) {
+	log.Println("Query", q)
+	cabs = make([]findcab.Cab, 0)
+	for _, cab := range s.cabs {
+		distance := Haversine(q.Center, findcab.Location{
+			Latitude:  cab.Latitude,
+			Longitude: cab.Longitude,
+		}, q.Unit)
+		if distance <= q.Radius {
+			cabs = append(cabs, cab)
+		}
 	}
 	return
 }
 
-func (cs *DummyCabService) Upsert(id string, cab findcab.Cab) (err error) {
-	log.Println("Upsert", cab)
-	return nil
-}
-
-func (cs *DummyCabService) Delete(id string) (err error) {
-	log.Println("Delete", id)
-	return nil
-}
-
-func (cs *DummyCabService) Within(center findcab.Location,
-	radius float64, limit uint64) (cabs []findcab.Cab, err error) {
-	log.Println("Within", center, radius, limit)
-	return
-}
-
-func (cs *DummyCabService) DeleteAll() (err error) {
+func (s *dummyCabService) DeleteAll() (err error) {
 	log.Println("DeleteAll")
+	s.cabs = make(map[string]findcab.Cab)
 	return
 }
