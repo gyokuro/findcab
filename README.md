@@ -46,8 +46,8 @@ Required | Name | Type | Default | Description | Example
 :-------:|:----:|:----:|:-------:|:-----------:|:------:
 Yes | latitude | Float | |  Client GPS |
 Yes | longitude | Float | | Client GPS |
-| limit | Integer | 8 | The total |
-| radius | Float | The radius |
+|| limit | Integer | 8 | The total |
+|| radius | Float | The radius |
 
 ## Sample Request
 

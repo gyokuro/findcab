@@ -37,7 +37,7 @@ not used because
     * Search by matching string prefixes is potentially not much faster than a native spatial index like MongoDb.
     * Computation of adjacent quads need more time to implement and verify and account for corner cases.
 
-* One can compute geohash and instead of encoding in alphanumeric (base32) representation, simply use a long (u
+* One can compute geohash and instead of encoding in alphanumeric (base32) representation, simply use a long (up
 to 64 bit) to represent the hash.  This is then used as a key in a database where the index keys are sorted:
     * In-memory trie or a ordered tree that allows range scan to find all candidates inside a list of quads.
     * Redis sorted set where the score is the hash value
