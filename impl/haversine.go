@@ -6,7 +6,9 @@ import (
 )
 
 const (
-	to_radians float64 = math.Pi / 180.
+	to_radians       float64 = math.Pi / 180.
+	EarthRadiusKm            = 6373.
+	EarthRadiusMiles         = 3961.
 )
 
 /// converts to radians
@@ -40,13 +42,13 @@ func Haversine(l1, l2 findcab.Location, unit findcab.DistanceUnit) float64 {
 	c := 2 * atan2(math.Sqrt(a), math.Sqrt(1-a))
 	switch unit {
 	case findcab.Kilometers:
-		return c * 6373.
+		return c * EarthRadiusKm
 	case findcab.Meters:
-		return c * 6373. * 1000.
+		return c * EarthRadiusKm * 1000.
 	case findcab.Miles:
-		return c * 3961.
+		return c * EarthRadiusMiles
 	case findcab.Feet:
-		return c * 3961. * 5280.
+		return c * EarthRadiusMiles * 5280.
 	}
 	return 0.
 }

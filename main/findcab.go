@@ -21,7 +21,7 @@ func main() {
 	shutdownc := make(chan io.Closer, 1)
 	go findcab.HandleSignals(shutdownc)
 
-	service := impl.DummyCabService()
+	service := impl.SimpleCabService()
 
 	httpServer := findcab.HttpServer(service)
 	httpServer.Addr = ":" + strconv.Itoa(*httpPort)

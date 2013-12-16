@@ -14,9 +14,9 @@ var client = &http.Client{}
 
 // A simple implementation that will verify the functionality of the http
 // wrapper
-type testService struct {
+type mock struct {
 	// record the parameters passed to the api calls
-	id          string
+	id          Id
 	withinQuery GeoWithin
 	cab         Cab
 
@@ -28,12 +28,13 @@ type testService struct {
 	mockQueryResponse *[]Cab
 }
 
-func (ts *testService) clear() {
+func (ts *mock) clear() {
 	ts.mockGetResponse = nil
 	ts.mockQueryResponse = nil
 }
 
-func (ts *testService) Read(id string) (cab Cab, err error) {
+// Implements CabService
+func (ts *mock) Read(id Id) (cab Cab, err error) {
 	ts.calledRead = true
 	ts.id = id
 	if ts.mockGetResponse != nil {
@@ -43,20 +44,23 @@ func (ts *testService) Read(id string) (cab Cab, err error) {
 	return
 }
 
-func (ts *testService) Upsert(id string, cab Cab) (err error) {
+// Implements CabService
+func (ts *mock) Upsert(id Id, cab Cab) (err error) {
 	ts.calledUpsert = true
 	ts.id = id
 	ts.cab = cab
 	return nil
 }
 
-func (ts *testService) Delete(id string) (err error) {
+// Implements CabService
+func (ts *mock) Delete(id Id) (err error) {
 	ts.calledDelete = true
 	ts.id = id
 	return
 }
 
-func (ts *testService) Query(q GeoWithin) (cabs []Cab, err error) {
+// Implements CabService
+func (ts *mock) Query(q GeoWithin) (cabs []Cab, err error) {
 	ts.calledWithin = true
 	ts.withinQuery = q
 	if ts.mockQueryResponse != nil {
@@ -66,7 +70,8 @@ func (ts *testService) Query(q GeoWithin) (cabs []Cab, err error) {
 	return
 }
 
-func (ts *testService) DeleteAll() (err error) {
+// Implements CabService
+func (ts *mock) DeleteAll() (err error) {
 	ts.calledDeleteAll = true
 	return
 }
@@ -89,8 +94,8 @@ func checkSlices(a, b []Cab) (bool, int) {
 	return true, -1
 }
 
-func runServer(port int) (service *testService, stop chan bool, stopped chan bool) {
-	ts := testService{}
+func runServer(port int) (service *mock, stop chan bool, stopped chan bool) {
+	ts := mock{}
 	service = &ts
 	httpServer := HttpServer(&ts)
 	httpServer.Addr = ":" + strconv.Itoa(port)
@@ -103,7 +108,6 @@ func TestHttpCreateUpdate(test *testing.T) {
 	service, stop, stopped := runServer(8181)
 
 	cab := Cab{
-		Id:        "1234",
 		Latitude:  10.,
 		Longitude: 100.,
 	}
@@ -124,9 +128,10 @@ func TestHttpCreateUpdate(test *testing.T) {
 		test.Error("Expect 200", resp)
 	}
 
-	expected := testService{
+	cab.Id = 1234
+	expected := mock{
 		calledUpsert: true,
-		id:           "1234",
+		id:           1234,
 		cab:          cab,
 	}
 
@@ -139,7 +144,7 @@ func TestHttpGet(test *testing.T) {
 	service, stop, stopped := runServer(8182)
 
 	mockResult := Cab{
-		Id:        "1234",
+		Id:        1234,
 		Latitude:  -40.0,
 		Longitude: -25.0,
 	}
@@ -155,9 +160,9 @@ func TestHttpGet(test *testing.T) {
 	<-stopped
 
 	// Check input parameters/ request body to the service
-	expected := testService{
+	expected := mock{
 		calledRead: true,
-		id:         "1234",
+		id:         1234,
 	}
 	if *service != expected {
 		test.Error("Read failed", expected, *service)
@@ -185,12 +190,12 @@ func TestHttpQuery(test *testing.T) {
 
 	mockResult := []Cab{
 		Cab{
-			Id:        "1234",
+			Id:        1234,
 			Latitude:  -40.0,
 			Longitude: -25.0,
 		},
 		Cab{
-			Id:        "2234",
+			Id:        2234,
 			Latitude:  -41.0,
 			Longitude: -26.0,
 		},
@@ -201,7 +206,7 @@ func TestHttpQuery(test *testing.T) {
 	lat := 5.5
 	lng := 15.15
 	radius := 1000.0
-	limit := uint64(8)
+	limit := 25
 
 	url := fmt.Sprintf("http://localhost:%d/cabs?latitude=%f&longitude=%f&radius=%f&limit=%d",
 		port, lat, lng, radius, limit)
@@ -215,7 +220,7 @@ func TestHttpQuery(test *testing.T) {
 	<-stopped
 
 	// Check in the input params
-	expected := testService{
+	expected := mock{
 		calledWithin: true,
 		withinQuery: GeoWithin{
 			Center: Location{
@@ -250,8 +255,8 @@ func TestHttpDestroy(test *testing.T) {
 	port := 8184
 	service, stop, stopped := runServer(port)
 
-	id := "12345"
-	url := fmt.Sprintf("http://localhost:%d/cabs/%s", port, id)
+	id := Id(12345)
+	url := fmt.Sprintf("http://localhost:%d/cabs/%d", port, id)
 	req, err := http.NewRequest("DELETE", url, nil)
 	check(err)
 
@@ -261,7 +266,7 @@ func TestHttpDestroy(test *testing.T) {
 	stop <- true
 	<-stopped
 
-	expected := testService{
+	expected := mock{
 		calledDelete: true,
 		id:           id,
 	}
@@ -290,7 +295,7 @@ func TestHttpDestroyAll(test *testing.T) {
 	<-stopped
 
 	// Checking input to service
-	expected := testService{
+	expected := mock{
 		calledDeleteAll: true,
 	}
 	if *service != expected {

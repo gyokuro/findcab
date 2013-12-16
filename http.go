@@ -10,7 +10,8 @@ import (
 	"strconv"
 )
 
-// Returns a channel that can be blocked on to get notification of the server's having stopped.
+// Runs the http server.  This server offers more control than the standard go's default http server
+// in that when a 'true' is sent to the stop channel, the listener is closed to force a clean shutdown.
 func RunServer(server *http.Server, stop chan bool) (stopped chan bool) {
 	listener, err := net.Listen("tcp", server.Addr)
 	if err != nil {
@@ -18,22 +19,30 @@ func RunServer(server *http.Server, stop chan bool) (stopped chan bool) {
 	}
 	stopped = make(chan bool)
 
+	// This will be set to true if a shutdown signal is received. This allows us to detect
+	// if the server stop is intentional or due to some error.
+	fromSignal := false
+
 	// The main goroutine where the server listens on the network connection
-	go func() {
+	go func(fromSignal *bool) {
+		// Serve will block until an error (e.g. from shutdown, closed connection) occurs.
 		err := server.Serve(listener)
-		log.Println("Stopped http server", err)
+		if !*fromSignal {
+			log.Println("Warning: server stops due to error", err)
+		}
 		stopped <- true
-	}()
+	}(&fromSignal)
 
 	// Another goroutine that listens for signal to close the network connection
 	// on shutdown.  This will cause the server.Serve() to return.
-	go func() {
+	go func(fromSignal *bool) {
 		select {
 		case <-stop:
 			listener.Close()
+			*fromSignal = true // Intentially stopped from signal
 			return
 		}
-	}()
+	}(&fromSignal)
 	return
 }
 
@@ -47,7 +56,12 @@ func HttpServer(service CabService) *http.Server {
 	// Create / Update Request
 	router.Methods("PUT").Path("/cabs/{cabId}").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
-		cabId := params["cabId"]
+
+		cabId, err := strconv.ParseUint(params["cabId"], 10, 64)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		}
+
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -55,20 +69,37 @@ func HttpServer(service CabService) *http.Server {
 
 		cab := Cab{}
 		err = json.Unmarshal(body, &cab)
+
+		// A quick check to make sure we have id that matches
+		if cab.Id == Id(0) {
+			cab.Id = Id(cabId) // fill in the missing Id from the URL
+		}
+
+		if cab.Id != Id(cabId) {
+			http.Error(w, "Cab Id and URL mismatch", http.StatusBadRequest)
+			return
+		}
+
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
 		}
-		err = service.Upsert(cabId, cab)
+		err = service.Upsert(Id(cabId), cab)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 	})
 
 	// Get Request
 	router.Methods("GET").Path("/cabs/{cabId}").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
-		cabId := params["cabId"]
-		cab, err := service.Read(cabId)
+		cabId, err := strconv.ParseUint(params["cabId"], 10, 64)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		}
+
+		cab, err := service.Read(Id(cabId))
 		switch err {
 		case nil:
 			if jsonStr, err2 := json.Marshal(cab); err2 != nil {
@@ -126,7 +157,7 @@ func HttpServer(service CabService) *http.Server {
 			},
 			Radius: radius,
 			Unit:   Meters,
-			Limit:  limit})
+			Limit:  int(limit)})
 		switch err {
 		case nil:
 			if jsonStr, err2 := json.Marshal(cabs); err2 != nil {
@@ -146,8 +177,12 @@ func HttpServer(service CabService) *http.Server {
 	// Destroy Request
 	router.Methods("DELETE").Path("/cabs/{cabId}").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
-		cabId := params["cabId"]
-		err := service.Delete(cabId)
+		cabId, err := strconv.ParseUint(params["cabId"], 10, 64)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		}
+
+		err = service.Delete(Id(cabId))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
