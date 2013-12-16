@@ -4,7 +4,6 @@ import (
 	"github.com/gyokuro/findcab"
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
-	_ "log"
 )
 
 type MongoDbCabService struct {
@@ -21,6 +20,7 @@ type mgo_record struct {
 	Loc []float64  `bson:"loc"`
 }
 
+// Converts input Cab struct into a mongodb record
 func to_mgo(cab *findcab.Cab) *mgo_record {
 	return &mgo_record{
 		Id:  cab.Id,
@@ -28,6 +28,7 @@ func to_mgo(cab *findcab.Cab) *mgo_record {
 	}
 }
 
+// Converts output Cab from input mongodb record
 func from_mgo(r *mgo_record) findcab.Cab {
 	return findcab.Cab{
 		Id:        r.Id,
@@ -89,7 +90,6 @@ func (s *MongoDbCabService) Upsert(cab findcab.Cab) (err error) {
 // Implements CabService
 func (s *MongoDbCabService) Query(q findcab.GeoWithin) (cabs []findcab.Cab, err error) {
 	return s.QueryIndexed(q)
-
 }
 
 // Implements CabService
