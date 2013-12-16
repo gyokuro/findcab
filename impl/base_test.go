@@ -34,7 +34,7 @@ func locationOf(cab findcab.Cab) findcab.Location {
 
 func testUpsert(service findcab.CabService, test *testing.T) {
 	for _, c := range cabs {
-		err := service.Upsert(c.Id, c)
+		err := service.Upsert(c)
 		if err != nil {
 			test.Error("Got error", err)
 		}

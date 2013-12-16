@@ -45,9 +45,9 @@ func (ts *mock) Read(id Id) (cab Cab, err error) {
 }
 
 // Implements CabService
-func (ts *mock) Upsert(id Id, cab Cab) (err error) {
+func (ts *mock) Upsert(cab Cab) (err error) {
 	ts.calledUpsert = true
-	ts.id = id
+	ts.id = cab.Id
 	ts.cab = cab
 	return nil
 }

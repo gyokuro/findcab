@@ -11,7 +11,10 @@ import (
 
 // Flags from the command line
 var (
-	httpPort = flag.Int("p", 8080, "http server port")
+	httpPort        = flag.Int("p", 8080, "http server port")
+	mongoUrl        = flag.String("dbUrl", "localhost", "MongoDb url")
+	mongoDbName     = flag.String("dbName", "findcab", "MongoDb database name")
+	mongoCollection = flag.String("dbColl", "cabs", "MongoDb collection name")
 )
 
 func main() {
@@ -21,7 +24,11 @@ func main() {
 	shutdownc := make(chan io.Closer, 1)
 	go findcab.HandleSignals(shutdownc)
 
-	service := impl.SimpleCabService()
+	// Uses the mongodb as backend datastore.
+	service, err := impl.NewMongoDbCabService(*mongoUrl, *mongoDbName, *mongoCollection)
+	if err != nil {
+		panic(err)
+	}
 
 	httpServer := findcab.HttpServer(service)
 	httpServer.Addr = ":" + strconv.Itoa(*httpPort)
@@ -38,6 +45,7 @@ func main() {
 	shutdownc <- findcab.ShutdownSequence{
 		findcab.ShutdownHook(func() error {
 			// Clean up database connections
+			service.Close()
 			return nil
 		}),
 		findcab.ShutdownHook(func() error {
@@ -47,5 +55,4 @@ func main() {
 	}
 
 	<-done // This just blocks until a bool is sent on the channel
-	log.Println("Bye")
 }

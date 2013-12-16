@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	simple = SimpleCabService()
+	simple = NewSimpleCabService()
 )
 
 func TestSimpleUpsert(test *testing.T) {

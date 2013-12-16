@@ -84,7 +84,7 @@ func HttpServer(service CabService) *http.Server {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		err = service.Upsert(Id(cabId), cab)
+		err = service.Upsert(cab)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

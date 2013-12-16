@@ -2,23 +2,24 @@ package impl
 
 import (
 	"github.com/gyokuro/findcab"
-	"log"
 )
 
 // Simple implementation of the CabService interface
+// This implementation uses a hashmap and does a O(N) scan of all entries
+// when computing the nearest neighbor.
+type simpleCabService struct {
+	cabs map[findcab.Id]findcab.Cab
+}
 
-func SimpleCabService() *simpleCabService {
+// Constructor method.  Returns an instance of the simple service
+func NewSimpleCabService() *simpleCabService {
 	return &simpleCabService{
 		cabs: make(map[findcab.Id]findcab.Cab),
 	}
 }
 
-type simpleCabService struct {
-	cabs map[findcab.Id]findcab.Cab
-}
-
+// Implements CabService
 func (s *simpleCabService) Read(id findcab.Id) (result findcab.Cab, err error) {
-	log.Println("id", id)
 	var exists bool
 	if result, exists = s.cabs[id]; exists {
 		return
@@ -27,31 +28,21 @@ func (s *simpleCabService) Read(id findcab.Id) (result findcab.Cab, err error) {
 	return
 }
 
-func (s *simpleCabService) Upsert(id findcab.Id, cab findcab.Cab) (err error) {
-	log.Println("Upsert", id, cab)
-	s.cabs[id] = cab
+// Implements CabService
+func (s *simpleCabService) Upsert(cab findcab.Cab) (err error) {
+	s.cabs[cab.Id] = cab
 	return nil
 }
 
+// Implements CabService
 func (s *simpleCabService) Delete(id findcab.Id) (err error) {
-	log.Println("Delete", id)
 	delete(s.cabs, id)
 	return nil
 }
 
-func sanitize(q *findcab.GeoWithin) *findcab.GeoWithin {
-	if q.Limit == 0 {
-		q.Limit = 8
-	}
-	if q.Unit == 0 {
-		q.Unit = findcab.Meters
-	}
-	return q
-}
-
+// Implements CabService
 func (s *simpleCabService) Query(q findcab.GeoWithin) (cabs []findcab.Cab, err error) {
-	sanitize(&q)
-	log.Println("Query", q)
+	findcab.Sanitize(&q)
 	cabs = make([]findcab.Cab, 0)
 	for _, cab := range s.cabs {
 		distance := Haversine(q.Center, findcab.Location{
@@ -68,8 +59,13 @@ func (s *simpleCabService) Query(q findcab.GeoWithin) (cabs []findcab.Cab, err e
 	return
 }
 
+// Implements CabService
 func (s *simpleCabService) DeleteAll() (err error) {
-	log.Println("DeleteAll")
 	s.cabs = make(map[findcab.Id]findcab.Cab)
 	return
+}
+
+// Implements CabService
+func (s *simpleCabService) Close() {
+	// no op
 }

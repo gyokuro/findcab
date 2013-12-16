@@ -36,6 +36,8 @@ func from_mgo(r *mgo_record) findcab.Cab {
 	}
 }
 
+// Constructor, returns an instance of the service backed by mongodb using a 2dsphere spatial index.
+// This also connects to the database and ensures that the spatial indexed is used.
 func NewMongoDbCabService(url, db, collection string) (service *MongoDbCabService, err error) {
 	service = &MongoDbCabService{
 		Url:        url,
@@ -61,11 +63,6 @@ func NewMongoDbCabService(url, db, collection string) (service *MongoDbCabServic
 	return
 }
 
-func (s *MongoDbCabService) Close() error {
-	s.session.Close()
-	return nil
-}
-
 // Implements CabService
 func (s *MongoDbCabService) Read(id findcab.Id) (found findcab.Cab, err error) {
 	result := mgo_record{}
@@ -83,9 +80,9 @@ func (s *MongoDbCabService) Read(id findcab.Id) (found findcab.Cab, err error) {
 }
 
 // Implements CabService
-func (s *MongoDbCabService) Upsert(id findcab.Id, cab findcab.Cab) (err error) {
+func (s *MongoDbCabService) Upsert(cab findcab.Cab) (err error) {
 	r := to_mgo(&cab)
-	_, err = s.collection.UpsertId(id, *r)
+	_, err = s.collection.UpsertId(cab.Id, *r)
 	return
 }
 
@@ -106,9 +103,14 @@ func (s *MongoDbCabService) DeleteAll() (err error) {
 	return
 }
 
+// Implements CabService
+func (s *MongoDbCabService) Close() {
+	s.session.Close()
+}
+
 // Uses the spatial index '2dsphere' for fast lookup of cabs by proximity.
 func (s *MongoDbCabService) QueryIndexed(q findcab.GeoWithin) (cabs []findcab.Cab, err error) {
-	sanitize(&q)
+	findcab.Sanitize(&q)
 	cabs = make([]findcab.Cab, 0)
 
 	distance := 0. // in meters, per mongo api
@@ -152,7 +154,7 @@ func (s *MongoDbCabService) QueryIndexed(q findcab.GeoWithin) (cabs []findcab.Ca
 // with calculation of haversine distance for each point.
 // Included here for testing.
 func (s *MongoDbCabService) QueryUnindexed(q findcab.GeoWithin) (cabs []findcab.Cab, err error) {
-	sanitize(&q)
+	findcab.Sanitize(&q)
 	cabs = make([]findcab.Cab, 0)
 
 	itr := s.collection.Find(nil).Iter()
