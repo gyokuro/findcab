@@ -31,11 +31,12 @@ the cabs by location.  Then a search of nearby cabs invole computation of a set 
 and use that for querying for a set of candidates:
 
 * One can use MySQL to store the cabs indexed by the geohash. The query for proximity becomes
-`select ... where left(key, N) in ('prefix1', 'prefix2'...).  This implementation using is SQL database is
+`select ... where left(key, N) in ('prefix1', 'prefix2'...).  This implementation using a SQL database is
 not used because
     * Tedius object/relational mapping - extra code
     * Search by matching string prefixes is potentially not much faster than a native spatial index like MongoDb.
     * Computation of adjacent quads need more time to implement and verify and account for corner cases.
+    * After candiates are selected, we potentially still have to filter by computing haversine distance.
 
 * One can compute geohash and instead of encoding in alphanumeric (base32) representation, simply use a long (up
 to 64 bit) to represent the hash.  This is then used as a key in a database where the index keys are sorted:
