@@ -10,6 +10,27 @@ import (
 	"strconv"
 )
 
+// Returns a http server from given service object
+// Registration of URL routes to handler functions that will invoke the service's methods to do CRUD.
+func HttpServer(service CabService) *http.Server {
+	router := mux.NewRouter()
+
+	// Create / Update Request
+	router.Methods("PUT").Path("/cabs/{cabId}").HandlerFunc(handleCreateUpdate(service))
+	// Get Request
+	router.Methods("GET").Path("/cabs/{cabId}").HandlerFunc(handleGet(service))
+	// Query
+	router.Methods("GET").Path("/cabs").HandlerFunc(handleQuery(service))
+	// Destroy Request
+	router.Methods("DELETE").Path("/cabs/{cabId}").HandlerFunc(handleDelete(service))
+	// Destroy All Request
+	router.Methods("DELETE").Path("/cabs").HandlerFunc(handleDeleteAll(service))
+
+	return &http.Server{
+		Handler: router,
+	}
+}
+
 // Runs the http server.  This server offers more control than the standard go's default http server
 // in that when a 'true' is sent to the stop channel, the listener is closed to force a clean shutdown.
 func RunServer(server *http.Server, stop chan bool) (stopped chan bool) {
@@ -46,15 +67,8 @@ func RunServer(server *http.Server, stop chan bool) (stopped chan bool) {
 	return
 }
 
-// Returns a http server from given service object
-// Registration of URL routes to handler functions that will invoke the service's methods to do CRUD.
-// Basic marshal/unmarshal of JSON objects for the REST calls also take place here.
-func HttpServer(service CabService) *http.Server {
-
-	router := mux.NewRouter()
-
-	// Create / Update Request
-	router.Methods("PUT").Path("/cabs/{cabId}").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func handleCreateUpdate(service CabService) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
 
 		cabId, err := strconv.ParseUint(params["cabId"], 10, 64)
@@ -89,10 +103,11 @@ func HttpServer(service CabService) *http.Server {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-	})
+	}
+}
 
-	// Get Request
-	router.Methods("GET").Path("/cabs/{cabId}").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func handleGet(service CabService) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
 		cabId, err := strconv.ParseUint(params["cabId"], 10, 64)
 		if err != nil {
@@ -117,10 +132,11 @@ func HttpServer(service CabService) *http.Server {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-	})
+	}
+}
 
-	// Query
-	router.Methods("GET").Path("/cabs").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func handleQuery(service CabService) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err != nil {
 			log.Println("form", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -172,10 +188,11 @@ func HttpServer(service CabService) *http.Server {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-	})
+	}
+}
 
-	// Destroy Request
-	router.Methods("DELETE").Path("/cabs/{cabId}").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func handleDelete(service CabService) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
 		cabId, err := strconv.ParseUint(params["cabId"], 10, 64)
 		if err != nil {
@@ -186,17 +203,14 @@ func HttpServer(service CabService) *http.Server {
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
-	})
+	}
+}
 
-	// Destroy All Request
-	router.Methods("DELETE").Path("/cabs").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func handleDeleteAll(service CabService) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		err := service.DeleteAll()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
-	})
-
-	return &http.Server{
-		Handler: router,
 	}
 }

@@ -76,6 +76,12 @@ func (ts *mock) DeleteAll() (err error) {
 	return
 }
 
+// Implements CabService
+func (ts *mock) Close() {
+	// do nothing
+	return
+}
+
 func check(err error) {
 	if err != nil {
 		panic(err)
