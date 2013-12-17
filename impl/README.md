@@ -6,7 +6,10 @@
 Currently there are two implementations of the `CabService` interface as defined in `service.go`:
 
 *  Simple/ naive implementation: all cabs are stored in memory in a hashmap. Computation of the
-nearest cab within location of radium M requires O(N) computations of the haversine distance.
+nearest cab within location of radius R requires O(N) computations of the haversine distance, where
+N is the number of cabs for a shard (we can shard by city and that will sufficiently limit the size of
+N to orders of at most 10's of thousands for even a city like NYC).
+
 *  MongoDb implementation: this uses mongodb as the database backend and spatial index. The
 `2dsphere` index is used on a GeoJSON representation of the Cab struct in the database and
 proximity queries are used for the 'within' computations.
@@ -21,6 +24,8 @@ spatial indexing (e.g. CouchDb, Lucene, ElasticSearch) are not ideal candidates:
 files) there aren't really going to be a massive number of objects in the collections.
 * There's enough flexibility in creating different kinds of indexes that this design can evolve as requirements
 change in the future.
+* There are likely other kinds of objects that need to be stored in the database, like user accounts, ride information,
+cab profiles, etc. that makes using a general purpose database with spatial indexing attractive.
 
 
 ## Alternative implementations
