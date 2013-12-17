@@ -109,3 +109,28 @@ environment. For example, which endpoints do you think will be used most frequen
 
 All latitude and longitude coordinate are based on the WGS84 coordinate system (the same one
 used by GPS enabled devices).
+
+
+# Compiling and Building
+
+Steps to build:
+
++ Install Go
+
++ For easier deployment, the files required for a web UI (e.g. .js and .css files, etc.) can
+be compiled into the executable binary.  To do so, a `embedfs` utility (written by me) is run
+that will generate .go source files for each one of the static content files:
+
+    util/embedfs -match=".*" -generated=true -destDir=resources webapp/
+
+This will generate .go source files for each file matched under the `webapp` directory.  The
+go source files will be placed in the `resources/webapp` directory.
+
+Note that util/embedfs is a binary compiled for MacOSX.  For linux, you can build embedfs from
+source, from my other github project: [https://github.com/qorio/embedfs]
+
++ From the top level directory, build the binary:
+
+    go build main/findcab.go
+
+This will produce the final executable, `findcab`, in the current directory.
