@@ -110,6 +110,17 @@ environment. For example, which endpoints do you think will be used most frequen
 All latitude and longitude coordinate are based on the WGS84 coordinate system (the same one
 used by GPS enabled devices).
 
+# Why GO
+
+Go is used as the language of implementation because:
+
++ It's statically typed language but fast compilation makes it feels like a scripting language,
+while allowing the code base to scale gracefully over time.
++ Its performance approaches that of C.
++ Manages concurrency elegantly thanks to language constructs like go routines and channels.
++ Compiles into a single binary executable. No other dependencies!  This makes production deployment trivial:
+    + No dependencies on runtime libraries that needs to be installed on each VM host
+    + Even for a webapp, the static images, css, js files can be compiled into go source code and embedded in the binary.
 
 # Compiling and Building
 
