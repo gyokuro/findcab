@@ -134,3 +134,41 @@ source, from my other github project: [https://github.com/qorio/embedfs]
     go build main/findcab.go
 
 This will produce the final executable, `findcab`, in the current directory.
+
+# Test
+
+There are unit tests in different packages that can be run to verify functionality.  Do
+
+    go test -v
+
+Also, the server can be tested using curl:
+
+    curl -i -H 'Accept:application/json' -X PUT -d '{"id":1234, "latitude":55.00, "longitude":55.00}' "http://localhost:8080/cabs/1234"
+
+    curl -i -X GET "http://localhost:8080/cabs/1234"
+    HTTP/1.1 200 OK
+    Content-Type: application/json
+    Content-Length: 40
+    Date: Tue, 17 Dec 2013 20:33:22 GMT
+
+    {"id":1234,"latitude":55,"longitude":55}
+
+
+    curl -i -X GET "http://localhost:8080/cabs?latitude=55&longitude=55&radius=500"
+    HTTP/1.1 200 OK
+    Content-Type: application/json
+    Content-Length: 42
+    Date: Tue, 17 Dec 2013 20:36:02 GMT
+
+    [{"id":1234,"latitude":55,"longitude":55}]
+
+    curl -i -X GET "http://localhost:8080/cabs?latitude=55&longitude=65&radius=500"
+    HTTP/1.1 200 OK
+    Content-Type: application/json
+    Content-Length: 2
+    Date: Tue, 17 Dec 2013 20:36:39 GMT
+
+    []
+
+    curl -i -X DELETE "http://localhost:8080/cabs/1234"
+    curl -i -X DELETE "http://localhost:8080/cabs"

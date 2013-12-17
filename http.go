@@ -108,6 +108,8 @@ func handleCreateUpdate(service CabService) func(http.ResponseWriter, *http.Requ
 
 func handleGet(service CabService) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Type", "application/json")
+
 		params := mux.Vars(r)
 		cabId, err := strconv.ParseUint(params["cabId"], 10, 64)
 		if err != nil {
@@ -137,26 +139,24 @@ func handleGet(service CabService) func(http.ResponseWriter, *http.Request) {
 
 func handleQuery(service CabService) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Type", "application/json")
+
 		if err := r.ParseForm(); err != nil {
-			log.Println("form", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		longitude, err := strconv.ParseFloat(r.FormValue("longitude"), 64)
 		if err != nil {
-			log.Println("lng", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		latitude, err := strconv.ParseFloat(r.FormValue("latitude"), 64)
 		if err != nil {
-			log.Println("lat", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		radius, err := strconv.ParseFloat(r.FormValue("radius"), 64)
 		if err != nil {
-			log.Println("rad", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
