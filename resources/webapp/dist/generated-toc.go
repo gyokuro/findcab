@@ -5,15 +5,15 @@ package webapp_dist
 import (
 	"net/http"
 	"os"
-	embedfs "github.com/gyokuro/findcab/resources"
+	embedfs "../resources"
 )
 
 import (
-	css "github.com/gyokuro/findcab/resources/webapp/dist/css"
+	css "../resources/webapp/dist/css"
 
-	fonts "github.com/gyokuro/findcab/resources/webapp/dist/fonts"
+	fonts "../resources/webapp/dist/fonts"
 
-	js "github.com/gyokuro/findcab/resources/webapp/dist/js"
+	js "../resources/webapp/dist/js"
 )
 
 func init() {

@@ -4,14 +4,14 @@ package webapp_dist_js
 
 import (
 	"time"
-	embedfs "github.com/gyokuro/findcab/resources"
+	embedfs "../resources"
 )
 
 var bootstrap_js = embedfs.EmbedFile{
 	FileName:         "bootstrap.js",
 	Original:         "webapp/dist/js/bootstrap.js",
 	Compressed:       true,
-	ModificationTime: time.Unix(1387234951, 1387234951000000000),
+	ModificationTime: time.Unix(1387261933, 1387261933000000000),
 	OriginalSize:     58458,
 	Data: []byte{
 		0x78, 0x9c, 0xec, 0x7d, 0xfb, 0x5b, 0x1b, 0x49, 0x92, 0xe0, 0xef, 0xfc, 0x15, 0x69, 0x86, 0xdb,

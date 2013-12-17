@@ -4,14 +4,14 @@ package webapp_fonts
 
 import (
 	"time"
-	embedfs "github.com/gyokuro/findcab/resources"
+	embedfs "../resources"
 )
 
 var glyphicons_halflings_regular_svg = embedfs.EmbedFile{
 	FileName:         "glyphicons-halflings-regular.svg",
 	Original:         "webapp/fonts/glyphicons-halflings-regular.svg",
 	Compressed:       true,
-	ModificationTime: time.Unix(1387234951, 1387234951000000000),
+	ModificationTime: time.Unix(1387261933, 1387261933000000000),
 	OriginalSize:     63157,
 	Data: []byte{
 		0x78, 0x9c, 0xe4, 0xbd, 0xeb, 0xaf, 0xe5, 0x38, 0x76, 0x1f, 0xfa, 0xdd, 0x7f, 0x05, 0x6f, 0x5d,

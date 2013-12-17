@@ -4,14 +4,14 @@ package webapp_assets_css
 
 import (
 	"time"
-	embedfs "github.com/gyokuro/findcab/resources"
+	embedfs "../resources"
 )
 
 var docs_css = embedfs.EmbedFile{
 	FileName:         "docs.css",
 	Original:         "webapp/assets/css/docs.css",
 	Compressed:       false,
-	ModificationTime: time.Unix(1387234951, 1387234951000000000),
+	ModificationTime: time.Unix(1387261933, 1387261933000000000),
 	OriginalSize:     76774,
 	Data: []byte{
 		0x2f, 0x2a, 0x0a, 0x20, 0x2a, 0x20, 0x42, 0x6f, 0x6f, 0x74, 0x73, 0x74, 0x72, 0x61, 0x70, 0x20,

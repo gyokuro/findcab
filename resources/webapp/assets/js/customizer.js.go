@@ -4,14 +4,14 @@ package webapp_assets_js
 
 import (
 	"time"
-	embedfs "github.com/gyokuro/findcab/resources"
+	embedfs "../resources"
 )
 
 var customizer_js = embedfs.EmbedFile{
 	FileName:         "customizer.js",
 	Original:         "webapp/assets/js/customizer.js",
 	Compressed:       true,
-	ModificationTime: time.Unix(1387234951, 1387234951000000000),
+	ModificationTime: time.Unix(1387261933, 1387261933000000000),
 	OriginalSize:     8930,
 	Data: []byte{
 		0x78, 0x9c, 0xcc, 0x5a, 0x6d, 0x73, 0xdb, 0x36, 0xf2, 0x7f, 0xef, 0x4f, 0x01, 0xb3, 0x1e, 0x93,

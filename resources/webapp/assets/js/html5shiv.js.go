@@ -4,14 +4,14 @@ package webapp_assets_js
 
 import (
 	"time"
-	embedfs "github.com/gyokuro/findcab/resources"
+	embedfs "../resources"
 )
 
 var html5shiv_js = embedfs.EmbedFile{
 	FileName:         "html5shiv.js",
 	Original:         "webapp/assets/js/html5shiv.js",
 	Compressed:       false,
-	ModificationTime: time.Unix(1387234951, 1387234951000000000),
+	ModificationTime: time.Unix(1387261933, 1387261933000000000),
 	OriginalSize:     2376,
 	Data: []byte{
 		0x2f, 0x2a, 0x0a, 0x20, 0x48, 0x54, 0x4d, 0x4c, 0x35, 0x20, 0x53, 0x68, 0x69, 0x76, 0x20, 0x76,
