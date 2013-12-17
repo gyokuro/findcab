@@ -4,14 +4,14 @@ package webapp_assets_js
 
 import (
 	"time"
-	embedfs "../resources"
+	embedfs "github.com/gyokuro/findcab/resources"
 )
 
 var raw_files_js = embedfs.EmbedFile{
 	FileName:         "raw-files.js",
 	Original:         "webapp/assets/js/raw-files.js",
 	Compressed:       true,
-	ModificationTime: time.Unix(1387261933, 1387261933000000000),
+	ModificationTime: time.Unix(1387234951, 1387234951000000000),
 	OriginalSize:     492438,
 	Data: []byte{
 		0x78, 0x9c, 0xec, 0xfd, 0xfb, 0x7a, 0x13, 0xc7, 0x96, 0x38, 0x0c, 0xff, 0xff, 0x5d, 0x45, 0x87,

@@ -21,40 +21,8 @@
       <script src="../../assets/js/html5shiv.js"></script>
       <script src="../../assets/js/respond.min.js"></script>
     <![endif]-->
-    <!--
-    <script type="text/javascript"
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPba_HtvcBhbyRZ_rUWtckejdsCNr9VN4&sensor=false">
-    </script>
-    -->
+  </head>
 
-    <style>
-      html, body, #map-canvas {
-        height: 100%;
-        margin: 0px;
-        padding: 0px
-      }
-    </style>
-    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
-    <script>
-function initialize() {
-  var myLatlng = new google.maps.LatLng(-25.363882,131.044922);
-  var mapOptions = {
-    zoom: 4,
-    center: myLatlng
-  }
-  var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-
-  var marker = new google.maps.Marker({
-      position: myLatlng,
-      map: map,
-      title: 'Hello World!'
-  });
-}
-
-google.maps.event.addDomListener(window, 'load', initialize);
-    </script>
-
-</head>
   <body>
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
@@ -79,10 +47,7 @@ google.maps.event.addDomListener(window, 'load', initialize);
     <!-- Placed at the end of the document so the pages load faster -->
     <script type="text/JavaScript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
     <script src="../../dist/js/bootstrap.min.js"></script>
-    <script type="text/JavaScript" src="/findcab.js"></script>
 
-    <div id="map-canvas">
-    </div>
   </body>
 
 </html>

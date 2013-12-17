@@ -4,14 +4,14 @@ package webapp_assets_js
 
 import (
 	"time"
-	embedfs "../resources"
+	embedfs "github.com/gyokuro/findcab/resources"
 )
 
 var jszip_js = embedfs.EmbedFile{
 	FileName:         "jszip.js",
 	Original:         "webapp/assets/js/jszip.js",
 	Compressed:       true,
-	ModificationTime: time.Unix(1387261933, 1387261933000000000),
+	ModificationTime: time.Unix(1387234951, 1387234951000000000),
 	OriginalSize:     49549,
 	Data: []byte{
 		0x78, 0x9c, 0xdc, 0x7d, 0x6b, 0x77, 0xdb, 0x46, 0x92, 0xe8, 0x77, 0xfd, 0x8a, 0xb6, 0xee, 0x39,

@@ -4,14 +4,14 @@ package webapp_assets_js
 
 import (
 	"time"
-	embedfs "../resources"
+	embedfs "github.com/gyokuro/findcab/resources"
 )
 
 var less_js = embedfs.EmbedFile{
 	FileName:         "less.js",
 	Original:         "webapp/assets/js/less.js",
 	Compressed:       true,
-	ModificationTime: time.Unix(1387261933, 1387261933000000000),
+	ModificationTime: time.Unix(1387234951, 1387234951000000000),
 	OriginalSize:     58184,
 	Data: []byte{
 		0x78, 0x9c, 0xdc, 0xbd, 0xfb, 0x77, 0xdb, 0xc6, 0xb5, 0x30, 0xfa, 0xfb, 0xf9, 0x2b, 0x28, 0x24,

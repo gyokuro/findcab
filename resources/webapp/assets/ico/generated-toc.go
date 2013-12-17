@@ -5,7 +5,7 @@ package webapp_assets_ico
 import (
 	"net/http"
 	"os"
-	embedfs "../resources"
+	embedfs "github.com/gyokuro/findcab/resources"
 )
 
 func init() {

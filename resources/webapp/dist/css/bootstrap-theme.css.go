@@ -4,14 +4,14 @@ package webapp_dist_css
 
 import (
 	"time"
-	embedfs "../resources"
+	embedfs "github.com/gyokuro/findcab/resources"
 )
 
 var bootstrap_theme_css = embedfs.EmbedFile{
 	FileName:         "bootstrap-theme.css",
 	Original:         "webapp/dist/css/bootstrap-theme.css",
 	Compressed:       true,
-	ModificationTime: time.Unix(1387261933, 1387261933000000000),
+	ModificationTime: time.Unix(1387234951, 1387234951000000000),
 	OriginalSize:     16819,
 	Data: []byte{
 		0x78, 0x9c, 0xec, 0x9b, 0x4d, 0x6f, 0xdb, 0x38, 0x13, 0xc7, 0xef, 0xf9, 0x14, 0x02, 0x8a, 0x07,

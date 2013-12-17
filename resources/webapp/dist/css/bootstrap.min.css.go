@@ -4,14 +4,14 @@ package webapp_dist_css
 
 import (
 	"time"
-	embedfs "../resources"
+	embedfs "github.com/gyokuro/findcab/resources"
 )
 
 var bootstrap_min_css = embedfs.EmbedFile{
 	FileName:         "bootstrap.min.css",
 	Original:         "webapp/dist/css/bootstrap.min.css",
 	Compressed:       true,
-	ModificationTime: time.Unix(1387261933, 1387261933000000000),
+	ModificationTime: time.Unix(1387234951, 1387234951000000000),
 	OriginalSize:     97339,
 	Data: []byte{
 		0x78, 0x9c, 0xec, 0xbd, 0xeb, 0xaf, 0xdb, 0xc8, 0x91, 0x28, 0xfe, 0xfd, 0xf7, 0x57, 0x68, 0x3d,

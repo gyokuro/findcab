@@ -5,7 +5,7 @@ package webapp_dist_js
 import (
 	"net/http"
 	"os"
-	embedfs "../resources"
+	embedfs "github.com/gyokuro/findcab/resources"
 )
 
 func init() {

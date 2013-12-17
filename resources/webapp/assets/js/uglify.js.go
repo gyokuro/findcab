@@ -4,14 +4,14 @@ package webapp_assets_js
 
 import (
 	"time"
-	embedfs "../resources"
+	embedfs "github.com/gyokuro/findcab/resources"
 )
 
 var uglify_js = embedfs.EmbedFile{
 	FileName:         "uglify.js",
 	Original:         "webapp/assets/js/uglify.js",
 	Compressed:       true,
-	ModificationTime: time.Unix(1387261933, 1387261933000000000),
+	ModificationTime: time.Unix(1387234951, 1387234951000000000),
 	OriginalSize:     50645,
 	Data: []byte{
 		0x78, 0x9c, 0xa4, 0xbd, 0xe7, 0x76, 0x1b, 0xc7, 0xb6, 0x30, 0xf8, 0xff, 0x7e, 0x2f, 0x01, 0xf4,

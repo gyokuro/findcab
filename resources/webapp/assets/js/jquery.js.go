@@ -4,14 +4,14 @@ package webapp_assets_js
 
 import (
 	"time"
-	embedfs "../resources"
+	embedfs "github.com/gyokuro/findcab/resources"
 )
 
 var jquery_js = embedfs.EmbedFile{
 	FileName:         "jquery.js",
 	Original:         "webapp/assets/js/jquery.js",
 	Compressed:       true,
-	ModificationTime: time.Unix(1387261933, 1387261933000000000),
+	ModificationTime: time.Unix(1387234951, 1387234951000000000),
 	OriginalSize:     93106,
 	Data: []byte{
 		0x78, 0x9c, 0xcc, 0xbd, 0x79, 0x7b, 0xdb, 0xc6, 0xb5, 0x30, 0xfe, 0xff, 0xfd, 0x14, 0x22, 0xea,

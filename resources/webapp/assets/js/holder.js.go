@@ -4,14 +4,14 @@ package webapp_assets_js
 
 import (
 	"time"
-	embedfs "../resources"
+	embedfs "github.com/gyokuro/findcab/resources"
 )
 
 var holder_js = embedfs.EmbedFile{
 	FileName:         "holder.js",
 	Original:         "webapp/assets/js/holder.js",
 	Compressed:       true,
-	ModificationTime: time.Unix(1387261933, 1387261933000000000),
+	ModificationTime: time.Unix(1387234951, 1387234951000000000),
 	OriginalSize:     12522,
 	Data: []byte{
 		0x78, 0x9c, 0xd4, 0x3a, 0xdb, 0x72, 0xe3, 0x36, 0x96, 0xcf, 0xd6, 0x57, 0xc0, 0x4c, 0xc6, 0x21,
