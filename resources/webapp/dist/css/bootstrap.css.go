@@ -11,7 +11,7 @@ var bootstrap_css = embedfs.EmbedFile{
 	FileName:         "bootstrap.css",
 	Original:         "webapp/dist/css/bootstrap.css",
 	Compressed:       true,
-	ModificationTime: time.Unix(1387234951, 1387234951000000000),
+	ModificationTime: time.Unix(1387261933, 1387261933000000000),
 	OriginalSize:     119892,
 	Data: []byte{
 		0x78, 0x9c, 0xec, 0xbd, 0xed, 0x93, 0xdb, 0x36, 0x92, 0x30, 0xfe, 0xdd, 0x7f, 0x85, 0xd6, 0xa9,

@@ -11,7 +11,7 @@ var favicon_png = embedfs.EmbedFile{
 	FileName:         "favicon.png",
 	Original:         "webapp/assets/ico/favicon.png",
 	Compressed:       false,
-	ModificationTime: time.Unix(1387234951, 1387234951000000000),
+	ModificationTime: time.Unix(1387261933, 1387261933000000000),
 	OriginalSize:     889,
 	Data: []byte{
 		0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52,

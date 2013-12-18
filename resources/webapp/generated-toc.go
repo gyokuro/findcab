@@ -12,8 +12,6 @@ import (
 	assets "github.com/gyokuro/findcab/resources/webapp/assets"
 
 	dist "github.com/gyokuro/findcab/resources/webapp/dist"
-
-	fonts "github.com/gyokuro/findcab/resources/webapp/fonts"
 )
 
 func init() {
@@ -23,8 +21,6 @@ func init() {
 	DIR.AddDir(assets.DIR)
 
 	DIR.AddDir(dist.DIR)
-
-	DIR.AddDir(fonts.DIR)
 
 }
 

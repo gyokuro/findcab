@@ -21,8 +21,22 @@
       <script src="../../assets/js/html5shiv.js"></script>
       <script src="../../assets/js/respond.min.js"></script>
     <![endif]-->
-  </head>
+    <!--
+    <script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPba_HtvcBhbyRZ_rUWtckejdsCNr9VN4&sensor=false">
+    </script>
+    -->
 
+    <style>
+      html, body, #map-canvas {
+        height: 100%;
+        margin: 0px;
+        padding: 0px
+      }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+
+  </head>
   <body>
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
@@ -43,10 +57,32 @@
         </div><!--/.nav-collapse -->
       </div>
     </div>
+
+    <h2 classs="lead">Find Cab</h2>
+    <div class="container">
+      <div class="row">
+	<form class="form-inline">
+	  <button type="button" class="btn btn-large btn-primary" id="add_cab">Add Cabs</button>
+	  <button type="button" class="btn btn-large btn-warning" id="remove_cab">Remove Cabs</button>
+	  <button type="button" class="btn btn-large btn-danger" id="remove_all_cabs">Remove All Cabs</button>
+
+	  &nbsp;&nbsp;&nbsp;
+	  <input type="text" class="input-large search-query" id="radius" placeholder="meters radius"/>
+	  <input type="text" class="input-large search-query" id="limit" placeholder="limit"/>
+	  <button type="button" class="btn btn-large btn-info" id="query">Query</button>
+	</form>
+      </div>
+    </div>
+    <p>
+    <div id="map-canvas"></div>
+    </p>
+
+
     <!-- Bootstrap core JavaScript -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script type="text/JavaScript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
     <script src="../../dist/js/bootstrap.min.js"></script>
+    <script type="text/JavaScript" src="/findcab.js"></script>
 
   </body>
 

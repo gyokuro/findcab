@@ -11,7 +11,7 @@ var application_js = embedfs.EmbedFile{
 	FileName:         "application.js",
 	Original:         "webapp/assets/js/application.js",
 	Compressed:       false,
-	ModificationTime: time.Unix(1387234951, 1387234951000000000),
+	ModificationTime: time.Unix(1387261933, 1387261933000000000),
 	OriginalSize:     1887,
 	Data: []byte{
 		0x2f, 0x2f, 0x20, 0x4e, 0x4f, 0x54, 0x49, 0x43, 0x45, 0x21, 0x21, 0x20, 0x44, 0x4f, 0x20, 0x4e,

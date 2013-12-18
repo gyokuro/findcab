@@ -11,8 +11,6 @@ import (
 import (
 	css "github.com/gyokuro/findcab/resources/webapp/dist/css"
 
-	fonts "github.com/gyokuro/findcab/resources/webapp/dist/fonts"
-
 	js "github.com/gyokuro/findcab/resources/webapp/dist/js"
 )
 
@@ -21,8 +19,6 @@ func init() {
 	DIR.AddDir(DIR)
 
 	DIR.AddDir(css.DIR)
-
-	DIR.AddDir(fonts.DIR)
 
 	DIR.AddDir(js.DIR)
 

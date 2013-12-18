@@ -11,7 +11,7 @@ var filesaver_js = embedfs.EmbedFile{
 	FileName:         "filesaver.js",
 	Original:         "webapp/assets/js/filesaver.js",
 	Compressed:       true,
-	ModificationTime: time.Unix(1387234951, 1387234951000000000),
+	ModificationTime: time.Unix(1387261933, 1387261933000000000),
 	OriginalSize:     8033,
 	Data: []byte{
 		0x78, 0x9c, 0xa4, 0x19, 0xfd, 0x57, 0xe3, 0x36, 0xf2, 0x77, 0xfe, 0x0a, 0xe1, 0x77, 0x8f, 0xb3,

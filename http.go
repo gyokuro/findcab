@@ -67,8 +67,18 @@ func RunServer(server *http.Server, stop chan bool) (stopped chan bool) {
 	return
 }
 
+// Adds all the basic headers such as json content-type for REST endpoint
+// and CORS header for cross-domain resource sharing
+// TODO - make the CORS domains specified from the command line to tighten security.
+func addHeaders(w *http.ResponseWriter) {
+	(*w).Header().Add("Content-Type", "application/json")
+	(*w).Header().Add("Access-Control-Allow-Origin", "*")
+}
+
 func handleCreateUpdate(service CabService) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		addHeaders(&w)
+
 		params := mux.Vars(r)
 
 		cabId, err := strconv.ParseUint(params["cabId"], 10, 64)
@@ -108,7 +118,7 @@ func handleCreateUpdate(service CabService) func(http.ResponseWriter, *http.Requ
 
 func handleGet(service CabService) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Content-Type", "application/json")
+		addHeaders(&w)
 
 		params := mux.Vars(r)
 		cabId, err := strconv.ParseUint(params["cabId"], 10, 64)
@@ -139,7 +149,7 @@ func handleGet(service CabService) func(http.ResponseWriter, *http.Request) {
 
 func handleQuery(service CabService) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Content-Type", "application/json")
+		addHeaders(&w)
 
 		if err := r.ParseForm(); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -193,6 +203,8 @@ func handleQuery(service CabService) func(http.ResponseWriter, *http.Request) {
 
 func handleDelete(service CabService) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		addHeaders(&w)
+
 		params := mux.Vars(r)
 		cabId, err := strconv.ParseUint(params["cabId"], 10, 64)
 		if err != nil {
@@ -208,6 +220,8 @@ func handleDelete(service CabService) func(http.ResponseWriter, *http.Request) {
 
 func handleDeleteAll(service CabService) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		addHeaders(&w)
+
 		err := service.DeleteAll()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

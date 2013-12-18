@@ -11,7 +11,7 @@ var bootstrap_theme_min_css = embedfs.EmbedFile{
 	FileName:         "bootstrap-theme.min.css",
 	Original:         "webapp/dist/css/bootstrap-theme.min.css",
 	Compressed:       true,
-	ModificationTime: time.Unix(1387234951, 1387234951000000000),
+	ModificationTime: time.Unix(1387261933, 1387261933000000000),
 	OriginalSize:     14996,
 	Data: []byte{
 		0x78, 0x9c, 0xec, 0x5a, 0x5f, 0x6f, 0xa3, 0xb8, 0x17, 0xfd, 0x2a, 0x95, 0x46, 0x3f, 0x4d, 0x2b,
