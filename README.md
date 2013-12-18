@@ -4,6 +4,20 @@ Available at [http://192.241.249.201]
 
 REST endpoint is at port 8080, for example: [http://192.241.249.201:8080/cabs/1234]
 
+## Using the demo
+
++ To place a cab on the road, click 'Add Cabs' and cabs will
+be placed anywhere on the map you click.  Click 'Done' when finished.
++ To remove cabs,
+click on 'Remove Cabs' and click on the markers to remove the cabs.  Click 'Done' when
+finished.
++ 'Remove All Cabs' will remove all the cabs in the database.
++ Enter radius (in meters) and a limit (defaults 8) and click 'Query' to visualize the
+circle and the cabs that fall within (will be highlighted in green).
++ You can drag the cabs around to update their locations.
++ You can drag the red marker, the query circle's center, to anywhere you'd like and then
+click 'Query' to see what cabs fall within the new circle.
+
 # Overview
 
 Should you choose to accept it, your challenge is to build an HTTP server that can quickly find
