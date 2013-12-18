@@ -1,7 +1,8 @@
 ![Image](./screen1.png?raw=true "screenshot")
 
 Available at [http://192.241.249.201]
-REST endpoint is at [http://192.241.249.201:8080/cabs]
+
+REST endpoint is at port 8080, for example: [http://192.241.249.201:8080/cabs/1234]
 
 # Overview
 
