@@ -34,6 +34,7 @@
         padding: 0px
       }
     </style>
+    <script type="text/JavaScript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
 
   </head>
@@ -67,8 +68,8 @@
 	  <button type="button" class="btn btn-large btn-danger" id="remove_all_cabs">Remove All Cabs</button>
 
 	  &nbsp;&nbsp;&nbsp;
-	  <input type="text" class="input-large search-query" id="radius" placeholder="meters radius"/>
-	  <input type="text" class="input-large search-query" id="limit" placeholder="limit"/>
+	  radius&nbsp;<input type="text" class="input-large search-query" id="radius" placeholder="meters radius"/>
+	  limit&nbsp;<input type="text" class="input-large search-query" id="limit" placeholder="limit"/>
 	  <button type="button" class="btn btn-large btn-info" id="query">Query</button>
 	</form>
       </div>
@@ -80,7 +81,6 @@
 
     <!-- Bootstrap core JavaScript -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script type="text/JavaScript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
     <script src="../../dist/js/bootstrap.min.js"></script>
     <script type="text/JavaScript" src="/findcab.js"></script>
 

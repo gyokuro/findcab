@@ -16,7 +16,7 @@ func HttpServer(service CabService) *http.Server {
 	router := mux.NewRouter()
 
 	// Create / Update Request
-	router.Methods("PUT").Path("/cabs/{cabId}").HandlerFunc(handleCreateUpdate(service))
+	router.Methods("PUT", "POST").Path("/cabs/{cabId}").HandlerFunc(handleCreateUpdate(service))
 	// Get Request
 	router.Methods("GET").Path("/cabs/{cabId}").HandlerFunc(handleGet(service))
 	// Query
@@ -25,6 +25,12 @@ func HttpServer(service CabService) *http.Server {
 	router.Methods("DELETE").Path("/cabs/{cabId}").HandlerFunc(handleDelete(service))
 	// Destroy All Request
 	router.Methods("DELETE").Path("/cabs").HandlerFunc(handleDeleteAll(service))
+
+	// These are added as hacks to work around issues with browsers problems with PUT and DELETE
+	// Destroy Request
+	router.Methods("POST").Path("/delete/{cabId}").HandlerFunc(handleDelete(service))
+	// Destroy All Request
+	router.Methods("POST").Path("/deleteAll").HandlerFunc(handleDeleteAll(service))
 
 	return &http.Server{
 		Handler: router,

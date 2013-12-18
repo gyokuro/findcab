@@ -53,15 +53,19 @@ func NewMongoDbCabService(url, db, collection string) (service *MongoDbCabServic
 	}
 	service.db = service.session.DB(service.Db)
 	service.collection = service.db.C(service.Collection)
+	service.ensure2dIndex()
+	return
+}
 
+// Makes sure the index is maintained on the loc property
+func (s *MongoDbCabService) ensure2dIndex() {
 	// 2d spatial index on 'loc'
-	service.collection.EnsureIndex(mgo.Index{
+	s.collection.EnsureIndex(mgo.Index{
 		Key:      []string{"loc"},
 		Unique:   false,
 		DropDups: false,
 		Name:     "2dsphere",
 	})
-	return
 }
 
 // Implements CabService
@@ -100,6 +104,7 @@ func (s *MongoDbCabService) Delete(id findcab.Id) (err error) {
 // Implements CabService
 func (s *MongoDbCabService) DeleteAll() (err error) {
 	_, err = s.collection.RemoveAll(nil)
+	s.ensure2dIndex() // Make sure we have the index!
 	return
 }
 
@@ -146,6 +151,9 @@ func (s *MongoDbCabService) QueryIndexed(q findcab.GeoWithin) (cabs []findcab.Ca
 	cab := mgo_record{}
 	for itr.Next(&cab) {
 		cabs = append(cabs, from_mgo(&cab))
+		if len(cabs) > q.Limit {
+			return
+		}
 	}
 	return
 }
