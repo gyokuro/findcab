@@ -6,7 +6,8 @@ var operation = "view";
 var rest = null
 var cabs = {}
 var queryCircle = null;
-
+var initialRadius = 2000; // meters
+var max = 20;
 
 $(function(){
 
@@ -21,10 +22,36 @@ $(function(){
 	marker.setIcon("/assets/ico/cab.png")
     }
 
+    // Resets the cab's state (out of range)
     function resetCabs() {
 	for (key in cabs) {
 	    setOutOfRange(cabs[key])
 	}
+    }
+
+    // Places the cab on the map
+    function placeCab(id, loc) {
+	m = new google.maps.Marker({
+	    position: loc,
+	    map: map,
+	    draggable: true,
+	    clickable: true,
+	    title: 'cab ' + id
+	});
+	setOutOfRange(m)
+	google.maps.event.addListener(m, 'click', function(evt) {
+	    console.log(['click on', id, m])
+	    switch (operation) {
+	    case "remove":
+		removeCab(id)
+		break;
+	    }
+	})
+	google.maps.event.addListener(m, 'dragend', function(evt) {
+	    console.log(['dragend', id, m, evt.latLng])
+	    upsertCab(id, evt.latLng)
+	})
+	cabs[id] = m // store the marker
     }
 
     function upsertCab(id, loc) {
@@ -36,28 +63,7 @@ $(function(){
 	var url = [ rest, "/cabs/" + id ].join('')
 	jQuery.post(url, JSON.stringify(cab)).always(function(e) {
 	    if (e.status == 200) {
-		m = new google.maps.Marker({
-		    position: loc,
-		    map: map,
-		    draggable: true,
-		    clickable: true,
-		    title: 'cab ' + id
-		});
-		setOutOfRange(m)
-		google.maps.event.addListener(m, 'click', function(evt) {
-		    console.log(['click on', id, m])
-		    switch (operation) {
-		    case "remove":
-			removeCab(id)
-			break;
-		    }
-		})
-		google.maps.event.addListener(m, 'dragend', function(evt) {
-		    console.log(['dragend', id, m, evt.latLng])
-		    upsertCab(id, evt.latLng)
-		})
-
-		cabs[id] = m // store the marker
+		placeCab(id, loc)
 	    }
 	});
 	console.log(['add_cab', cab, url])
@@ -164,6 +170,9 @@ $(function(){
 	    for (var i=0; i < result.length; i++) {
 		if (cabs[result[i].id] !== undefined) {
 		    setInRange(cabs[result[i].id])
+		} else {
+		    var loc = new google.maps.LatLng(result[i].latitude, result[i].longitude)
+		    placeCab(result[i].id, loc)
 		}
 	    }
 	});
@@ -177,6 +186,14 @@ $(function(){
 		console.log(["got location", currentLocation])
 		map.setCenter(currentLocation)
 		homeMarker.setPosition(currentLocation)
+
+		// perform a query
+		query({
+		    center:currentLocation,
+		    radius:initialRadius, // meters
+		    limit:max
+		})
+
 	    }, function (error) {
 		console.log(arguments);
 	    });
