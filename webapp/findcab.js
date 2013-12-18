@@ -48,7 +48,7 @@ $(function(){
 		    console.log(['click on', id, m])
 		    switch (operation) {
 		    case "remove":
-			removeCab(id, m)
+			removeCab(id)
 			break;
 		    }
 		})
@@ -63,9 +63,13 @@ $(function(){
 	console.log(['add_cab', cab, url])
     }
 
-    function removeCab(id, marker) {
+    function removeCab(id) {
+	var marker = cabs[id]
+	if (marker === undefined) {
+	    return
+	}
 	var url = [ rest, "/cabs/", id ].join('')
-	console.log(['remove', url])
+	console.log(['remove', url, marker])
 	marker.setMap(null)
 	// In Chrome this somehow ends up with a OPTIONS http method when DELETE is set
 	// $.ajax({
@@ -224,6 +228,13 @@ $(function(){
 	}
     })
 
+    // Restores the buttons to the proper state
+    // TODO - better to use a state machine controller.
+    function resetButtons() {
+	$('#add_cab').html('Add Cabs')
+	$('#remove_cab').html('Remove Cabs')
+    }
+
     $('#remove_cab').click(function(evt) {
 	operation = operation == "remove"? "done" : "remove" // toggle
 	switch (operation) {
@@ -239,6 +250,7 @@ $(function(){
 
     $('#remove_all_cabs').click(function(evt) {
 	operation = "remove_all"
+	resetButtons()
 	if (confirm("Really remove all cabs from the roads?")) {
 	    removeAll()
 	}
@@ -246,6 +258,7 @@ $(function(){
 
     $('#query').click(function(evt) {
 	operation = "query"
+	resetButtons()
 	c = getQueryCircle(homeMarker.getPosition())
 	drawQueryCircle(c)
 	resetCabs()
