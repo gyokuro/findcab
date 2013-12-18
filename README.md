@@ -1,3 +1,5 @@
+!(https://raw.github.com/gyokuro/findcab/master/screen1.png "screenshot")
+
 # Overview
 
 Should you choose to accept it, your challenge is to build an HTTP server that can quickly find
