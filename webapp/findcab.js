@@ -155,7 +155,7 @@ $(function(){
     }
 
     // c is the query circle
-    function query(c) {
+    function query(c, highlight) {
 	var params = [
 	    "latitude=" + c.center.lat(),
 	    "longitude=" + c.center.lng(),
@@ -169,7 +169,9 @@ $(function(){
 
 	    for (var i=0; i < result.length; i++) {
 		if (cabs[result[i].id] !== undefined) {
-		    setInRange(cabs[result[i].id])
+		    if (highlight) {
+			setInRange(cabs[result[i].id])
+		    }
 		} else {
 		    var loc = new google.maps.LatLng(result[i].latitude, result[i].longitude)
 		    placeCab(result[i].id, loc)
@@ -192,7 +194,7 @@ $(function(){
 		    center:currentLocation,
 		    radius:initialRadius, // meters
 		    limit:max
-		})
+		}, false)
 
 	    }, function (error) {
 		console.log(arguments);
@@ -218,6 +220,14 @@ $(function(){
 	    if (queryCircle != null) {
 		queryCircle.setMap(null)
 	    }
+	});
+	google.maps.event.addListener(homeMarker, 'dragend', function() {
+	    // at the end of a drag, find more nearby cabs
+	    query({
+		center:homeMarker.getPosition(),
+		radius:initialRadius, // meters
+		limit:max
+	    }, false)
 	});
 
 	google.maps.event.addListener(map, 'click', function(evt) {
@@ -279,7 +289,7 @@ $(function(){
 	c = getQueryCircle(homeMarker.getPosition())
 	drawQueryCircle(c)
 	resetCabs()
-	query(c)
+	query(c, true)
     })
 
 })
